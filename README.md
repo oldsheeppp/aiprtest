@@ -18,3 +18,14 @@ python -m venv .venv
 .venv/bin/python -m pip install -e '.[test]'
 .venv/bin/python -m pytest
 ```
+
+## Frontend
+
+```bash
+cd frontend
+npm install
+npm test
+npm run build
+```
+
+During development, run the FastAPI app on `127.0.0.1:8000` and start Vite with `npm run dev`.

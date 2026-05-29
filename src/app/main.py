@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.staticfiles import StaticFiles
 
 from . import db
 from .auth import require_admin
@@ -7,6 +10,7 @@ from .users import find_user
 
 
 app = FastAPI(title="PR Review Sandbox")
+frontend_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 
 
 @app.get("/users/{id}")
@@ -33,3 +37,6 @@ def refund(request: RefundRequest) -> Payment:
 @app.get("/admin/audit-log", dependencies=[Depends(require_admin)])
 def audit_log() -> dict[str, list[dict[str, str]]]:
     return {"events": list(db.audit_log)}
+
+
+app.mount("/", StaticFiles(directory=frontend_dist, html=True, check_dir=False), name="frontend")
