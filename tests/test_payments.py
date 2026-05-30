@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+import pytest
 
 from app.main import app
 
@@ -58,6 +59,22 @@ def test_refund_uses_default_reason_when_not_provided():
     ).json()
 
     response = client.post("/payments/refund", json={"payment_id": charge["id"]})
+
+    assert response.status_code == 200
+    assert response.json()["refund_reason"] == "unspecified"
+
+
+@pytest.mark.parametrize("reason", [None, "", "   "])
+def test_refund_uses_default_reason_for_empty_reason_values(reason):
+    charge = client.post(
+        "/payments/charge",
+        json={"user_id": 1, "amount_cents": 1900, "currency": "USD"},
+    ).json()
+
+    response = client.post(
+        "/payments/refund",
+        json={"payment_id": charge["id"], "reason": reason},
+    )
 
     assert response.status_code == 200
     assert response.json()["refund_reason"] == "unspecified"
