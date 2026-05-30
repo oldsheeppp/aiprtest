@@ -1,7 +1,7 @@
 from typing import Literal
 
 from fastapi import HTTPException, status
-from pydantic import BaseModel, Field, PositiveInt
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt, field_validator
 
 from . import db
 from .users import find_user
@@ -14,7 +14,23 @@ class ChargeRequest(BaseModel):
 
 
 class RefundRequest(BaseModel):
+    model_config = ConfigDict(validate_default=True)
+
     payment_id: str = Field(min_length=1)
+    reason: str | None = None
+
+    @field_validator("reason")
+    @classmethod
+    def normalize_reason(cls, value: str | None) -> str:
+        if value is None:
+            return "unspecified"
+
+        reason = value.strip()
+        if not reason:
+            return "unspecified"
+        if len(reason) > 200:
+            raise ValueError("reason must be 200 characters or fewer")
+        return reason
 
 
 class Payment(BaseModel):
@@ -23,6 +39,7 @@ class Payment(BaseModel):
     amount_cents: int
     currency: str
     status: Literal["charged", "refunded"]
+    refund_reason: str | None = None
 
 
 def charge_payment(request: ChargeRequest) -> Payment:
@@ -53,5 +70,12 @@ def refund_payment(request: RefundRequest) -> Payment:
         )
 
     payment["status"] = "refunded"
-    db.audit_log.append({"event": "payment_refunded", "payment_id": payment["id"]})
+    payment["refund_reason"] = request.reason
+    db.audit_log.append(
+        {
+            "event": "payment_refunded",
+            "payment_id": payment["id"],
+            "reason": request.reason,
+        }
+    )
     return Payment(**payment)

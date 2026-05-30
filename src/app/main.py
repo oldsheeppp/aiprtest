@@ -24,12 +24,12 @@ def get_user(id: int) -> dict[str, object]:
     return user
 
 
-@app.post("/payments/charge", response_model=Payment)
+@app.post("/payments/charge", response_model=Payment, response_model_exclude_none=True)
 def charge(request: ChargeRequest) -> Payment:
     return charge_payment(request)
 
 
-@app.post("/payments/refund", response_model=Payment)
+@app.post("/payments/refund", response_model=Payment, response_model_exclude_none=True)
 def refund(request: RefundRequest) -> Payment:
     return refund_payment(request)
 
