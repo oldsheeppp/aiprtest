@@ -17,4 +17,4 @@ def test_get_user_by_id_returns_404_for_missing_user():
     response = client.get("/users/999")
 
     assert response.status_code == 404
-    assert response.json() == {"detail": "user not found"}
+    assert response.json() == {"detail": "User not found"}

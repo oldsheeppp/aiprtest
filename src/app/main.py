@@ -19,7 +19,7 @@ def get_user(id: int) -> dict[str, object]:
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="user not found",
+            detail="User not found",
         )
     return user
 
