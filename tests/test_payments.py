@@ -51,6 +51,63 @@ def test_refund_marks_payment_refunded():
     assert response.json()["status"] == "refunded"
 
 
+def test_refund_uses_default_reason_when_not_provided():
+    charge = client.post(
+        "/payments/charge",
+        json={"user_id": 1, "amount_cents": 1800, "currency": "USD"},
+    ).json()
+
+    response = client.post("/payments/refund", json={"payment_id": charge["id"]})
+
+    assert response.status_code == 200
+    assert response.json()["refund_reason"] == "unspecified"
+
+
+def test_refund_saves_reason_when_provided():
+    charge = client.post(
+        "/payments/charge",
+        json={"user_id": 1, "amount_cents": 2100, "currency": "USD"},
+    ).json()
+
+    response = client.post(
+        "/payments/refund",
+        json={"payment_id": charge["id"], "reason": "customer request"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["refund_reason"] == "customer request"
+
+
+def test_refund_trims_reason_whitespace():
+    charge = client.post(
+        "/payments/charge",
+        json={"user_id": 1, "amount_cents": 2200, "currency": "USD"},
+    ).json()
+
+    response = client.post(
+        "/payments/refund",
+        json={"payment_id": charge["id"], "reason": "  duplicate charge  "},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["refund_reason"] == "duplicate charge"
+
+
+def test_refund_rejects_reason_longer_than_200_characters():
+    charge = client.post(
+        "/payments/charge",
+        json={"user_id": 1, "amount_cents": 2300, "currency": "USD"},
+    ).json()
+
+    response = client.post(
+        "/payments/refund",
+        json={"payment_id": charge["id"], "reason": "x" * 201},
+    )
+
+    assert response.status_code == 422
+    assert "reason must be 200 characters or fewer" in response.text
+
+
 def test_refund_rejects_unknown_payment():
     response = client.post("/payments/refund", json={"payment_id": "pay_missing"})
 
