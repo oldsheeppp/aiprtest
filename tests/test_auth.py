@@ -6,6 +6,13 @@ from app.main import app
 client = TestClient(app)
 
 
+def test_admin_audit_log_requires_role_header():
+    response = client.get("/admin/audit-log")
+
+    assert response.status_code == 403
+    assert response.json() == {"detail": "admin role required"}
+
+
 def test_admin_audit_log_requires_admin_role():
     response = client.get("/admin/audit-log", headers={"X-Role": "user"})
 
