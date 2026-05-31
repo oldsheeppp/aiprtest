@@ -5,8 +5,8 @@ from typing import Any
 
 
 users: dict[int, dict[str, Any]] = {
-    1: {"id": 1, "email": "ada@example.com", "name": "Ada Lovelace"},
-    2: {"id": 2, "email": "grace@example.com", "name": "Grace Hopper"},
+    1: {"id": 1, "email": "ada@example.com", "name": "Ada Lovelace", "email_verified_at": None},
+    2: {"id": 2, "email": "grace@example.com", "name": "Grace Hopper", "email_verified_at": None},
 }
 
 payments: dict[str, dict[str, Any]] = {}
