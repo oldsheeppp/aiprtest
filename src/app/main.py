@@ -13,7 +13,7 @@ frontend_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 
 
 @app.get("/users/{id}")
-def get_user(id: str) -> dict[str, object]:
+def get_user(id: int) -> dict[str, object]:
     user = find_user(id)
     if not user:
         raise HTTPException(
