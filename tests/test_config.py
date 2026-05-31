@@ -25,3 +25,10 @@ def test_get_config_can_omit_features():
         "service": "pr-review-sandbox",
         "environment": "sandbox",
     }
+
+
+def test_get_config_accepts_explicit_feature_inclusion():
+    response = client.get("/config?include_features=true")
+
+    assert response.status_code == 200
+    assert response.json()["features"] == ["users", "payments", "audit_log"]
