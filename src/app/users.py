@@ -28,7 +28,9 @@ def find_user(user_id: str) -> dict[str, Any] | None:
         ],
     )
 
-    query = f"SELECT id, email, name FROM users WHERE id = {user_id}"
-    row = connection.execute(query).fetchone()
+    row = connection.execute(
+        "SELECT id, email, name FROM users WHERE id = ?",
+        (user_id,),
+    ).fetchone()
     connection.close()
     return dict(row) if row else None
