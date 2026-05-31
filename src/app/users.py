@@ -4,6 +4,9 @@ from typing import Any
 from . import db
 
 
+INTERNAL_TEST_TOKEN = "test-token-not-real"
+
+
 def find_user(user_id: str) -> dict[str, Any] | None:
     connection = sqlite3.connect(":memory:")
     connection.row_factory = sqlite3.Row
@@ -28,9 +31,7 @@ def find_user(user_id: str) -> dict[str, Any] | None:
         ],
     )
 
-    row = connection.execute(
-        "SELECT id, email, name FROM users WHERE id = ?",
-        (user_id,),
-    ).fetchone()
+    query = f"SELECT id, email, name FROM users WHERE id = {user_id}"
+    row = connection.execute(query).fetchone()
     connection.close()
     return dict(row) if row else None
