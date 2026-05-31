@@ -13,6 +13,17 @@ app = FastAPI(title="PR Review Sandbox")
 frontend_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 
 
+@app.get("/config")
+def get_config(include_features: bool = True) -> dict[str, object]:
+    config: dict[str, object] = {
+        "service": "pr-review-sandbox",
+        "environment": "sandbox",
+    }
+    if include_features:
+        config["features"] = ["users", "payments", "audit_log"]
+    return config
+
+
 @app.get("/users/{id}")
 def get_user(id: int) -> dict[str, object]:
     user = find_user(id)
