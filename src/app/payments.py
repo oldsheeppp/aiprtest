@@ -11,6 +11,7 @@ class ChargeRequest(BaseModel):
     user_id: int
     amount_cents: PositiveInt
     currency: str = Field(min_length=3, max_length=3)
+    description: str | None = None
 
 
 class RefundRequest(BaseModel):
@@ -39,6 +40,7 @@ class Payment(BaseModel):
     amount_cents: int
     currency: str
     status: Literal["charged", "refunded"]
+    description: str | None = None
     refund_reason: str | None = None
 
 
@@ -55,6 +57,7 @@ def charge_payment(request: ChargeRequest) -> Payment:
         "amount_cents": request.amount_cents,
         "currency": request.currency.upper(),
         "status": "charged",
+        "description": request.description,
     }
     db.payments[payment["id"]] = payment
     db.audit_log.append({"event": "payment_charged", "payment_id": payment["id"]})
